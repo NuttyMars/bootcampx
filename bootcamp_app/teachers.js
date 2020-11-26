@@ -9,17 +9,22 @@ const pool = new Pool({
 
 const params = process.argv.slice(2);
 
-pool.query(`
+const cohortName = process.argv[2];
+
+const queryString = `
 SELECT teachers.name AS teacher,
   cohorts.name AS cohort
 FROM teachers
 JOIN assistance_requests ON  teachers.id = teacher_id
 JOIN students ON students.id = student_id
 LEFT JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name LIKE '%${params[0]}%'
+WHERE cohorts.name LIKE $1
 GROUP BY teacher, cohort
 ORDER BY teacher;;
-`)
+`;
+const values = [`%${cohortName}%`];
+
+pool.query(queryString, values)
 .then(result => {
   console.log('connected to db');
   
